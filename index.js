@@ -2,6 +2,20 @@ require('dotenv').config();
 const {createServer} = require('http')
 const {Server} = require('socket.io')
 const admin = require('firebase-admin')
+const express = require('express')
+const app = express()
+
+const allowedOrigins = ['http://localhost:3000', 'https://f1webdev.tech'];
+
+app.use(cors({
+    origin: function(origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    }
+}));
 const serviceAccount = {
     type: process.env.GOOGLE_TYPE,
     project_id: process.env.GOOGLE_PROJECT_ID,
