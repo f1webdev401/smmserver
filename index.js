@@ -3,10 +3,9 @@ const {createServer} = require('http')
 const {Server} = require('socket.io')
 const admin = require('firebase-admin')
 const express = require('express')
-const app = express()
-
+const cors = require('cors')
 const allowedOrigins = ['http://localhost:3000', 'https://f1webdev.tech'];
-
+const app = express()
 app.use(cors({
     origin: function(origin, callback) {
         if (!origin || allowedOrigins.includes(origin)) {
