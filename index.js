@@ -263,7 +263,6 @@ io.on('connection',(socket) => {
         betpayoutPercent()
     })
 })
-const PORT = process.env.PORT || 5050;
-httpServer.listen(PORT , () => {
+httpServer.listen(5050 , () => {
     console.log("workign")
 })
