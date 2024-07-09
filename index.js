@@ -35,7 +35,7 @@ admin.initializeApp({
 })
 
 const db = admin.database()
-const httpServer = createServer()
+const httpServer = createServer(app)
 
 
 const io = new Server(httpServer,{
