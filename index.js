@@ -4,7 +4,7 @@ const {Server} = require('socket.io')
 const admin = require('firebase-admin')
 const express = require('express')
 const cors = require('cors')
-const allowedOrigins = ['http://localhost:3000', 'https://f1webdev.tech'];
+const allowedOrigins = ['http://localhost:3000', 'https://smmplay.online'];
 const app = express()
 app.use(cors({
     origin: function(origin, callback) {
@@ -40,7 +40,7 @@ const httpServer = createServer(app)
 
 const io = new Server(httpServer,{
     cors : {
-        origin: ['http://localhost:3000'],
+        origin: ['http://localhost:3000','https://smmplay.online'],
         methods: ["GET","POST"]
     }
 })
