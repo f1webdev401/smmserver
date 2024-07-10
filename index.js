@@ -245,8 +245,17 @@ io.on('connection',(socket) => {
     socket.on('hl-place-bet',(betdata) => {
         if(hl_game_stat === "Close") {
             console.log("Game Close")
+            io.to(betdata.socketId).emit("hl-close-game",true)
             return;
         }else {
+            io.to(betdata.socketId).emit("hl-close-game",false)
+            if(betdata.betAmount === "") {
+                return;
+            }
+            if(parseFloat(betdata.betAmount) < 10) {
+                return;
+            }
+            console.log(betdata.socketId)
             let newBetdata = {...betdata}
             newBetdata.betAmount = parseFloat(newBetdata.betAmount)
             pushBetData(newBetdata)
@@ -258,6 +267,9 @@ io.on('connection',(socket) => {
         
     })
     socket.on('join-hl-game',() => {
+        if(hl_game_stat === "Close") {
+            io.to(betdata.socketId).emit("hl-close-game","Game Close")
+        }
         io.emit('hl-winner-result',winner)
         io.emit('hl-bet-card-percentage',SumofAllbet()[0],SumofAllbet()[1],op_payout_card1().toFixed(2),op_payout_card2().toFixed(2))
         betpayoutPercent()
