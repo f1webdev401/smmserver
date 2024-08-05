@@ -114,7 +114,7 @@ const loginUser = async (req,res,next) => {
             httpOnly: false,
             expires: new Date(Date.now() + 8 * 3600000) 
         })
-        res.status(201).json({message:"User Logged in successfully",success:true})
+        res.status(201).json({message:"User Logged in successfully",success:true,token:token})
         next()
     }catch(e) {
         console.log(e)
