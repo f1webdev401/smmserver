@@ -111,7 +111,8 @@ const loginUser = async (req,res,next) => {
         const token = createSecretToken(user._id)
         res.cookie('token',token, {
             withCredentials: true,
-            httpOnly: false
+            httpOnly: false,
+            expires: new Date(Date.now() + 8 * 3600000) 
         })
         res.status(201).json({message:"User Logged in successfully",success:true})
         next()
