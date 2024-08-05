@@ -1,0 +1,90 @@
+require('dotenv').config();
+const {createServer} = require('http')
+const express = require('express')
+const mongoose = require('mongoose')
+const cors = require('cors')
+const bodyParser = require('body-parser')
+const cookieParser = require('cookie-parser')
+const cluster = require('node:cluster')
+const {Server} = require('socket.io')
+
+const {availableParallelism } = require('node:os')
+const {createAdapter,setupPrimary} = require('@socket.io/cluster-adapter')
+
+
+const allowedOrigins = ['http://localhost:3000', 'https://smmplay.online','http://localhost:3008'];
+
+
+
+
+if(cluster.isPrimary) {
+    const numCPUs = availableParallelism()
+    for (let i = 0; i < numCPUs; i++) {
+        cluster.fork({
+          PORT: 3000 + i
+        });
+      }
+      setupPrimary()
+    
+}else {
+    
+    const app = express()
+    app.use(cookieParser())
+    app.use(express.json())
+    app.use(bodyParser.urlencoded({extended:true}))
+    //api
+    app.use('/api/users',require('./routes/user-routes'))
+    app.use('/api/users-agent',require('./routes/user-agent-routes'))
+    app.use('/api/casino/highcards',require('./routes/casino-games/highcards-routes'))
+    //api
+
+    const httpServer = createServer(app)
+    app.use(cors({
+        origin: function(origin, callback) {
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
+        credentials:true
+    }));
+    
+    // 'socket routes'
+    const colorgame = require('./sockets/colorgame')
+    const {highcardsgame,startIntervals} =  require('./sockets/highcards')
+    // 'socket routes'
+
+
+    const io = new Server(httpServer,{
+        cors : {
+            origin: ['http://localhost:3000','https://smmplay.online','http://localhost:3008'],
+            methods: ["GET","POST"]
+        },
+        connectionStateRecovery: {},
+        adapter:createAdapter()
+    })
+    const port = process.env.PORT;
+    
+    mongoose.connect("mongodb+srv://f1webdev401:q0OZuqXwVrLuXuAD@casino.bebszo9.mongodb.net/?retryWrites=true&w=majority&appName=casino")
+    .then(() => {
+        console.log('connected to the database')
+        httpServer.listen(port , () => {
+            console.log(`Worker process ${process.pid} is listening on port 5050`);
+        })
+        startIntervals(io)
+        io.on('connection',(socket) => {
+            console.log('asdasd')
+            colorgame(io,socket)
+            highcardsgame(io,socket)
+        
+        })
+    })
+    .catch(() => {
+        console.log("error database")
+    })
+    
+   module.exports = io
+    
+}
+

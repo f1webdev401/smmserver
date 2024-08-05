@@ -1,0 +1,24 @@
+version: '3.7'
+
+services:
+  app:
+    image: node-image
+    deploy:
+      replicas: 3
+    environment:
+      - PORT=3000
+      - REDIS_URL=redis://redis:6379
+      - MONGODB_URI=mongodb://mongodb:27017/your-db
+
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+      - mongo
+  redis:
+    image: redis:alpine
+  mongo:
+    image: mongo:latest
+
+  ports:
+    - "27017:27017"
